@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin – Harshil Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/static/css/admin.css"/>
+</head>
+<body>
+
+<aside id="admin-sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-text">H<span>.</span>Admin</div>
+    <div class="sidebar-sub">Dashboard Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Overview</div>
+    <div class="sidebar-link active" data-target="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+    <div class="sidebar-link" data-target="messages"><i class="fas fa-envelope"></i> Messages {% if unread>0 %}<span class="sidebar-badge">{{unread}}</span>{% endif %}</div>
+    <div class="sidebar-section-label">Content</div>
+    <div class="sidebar-link" data-target="projects"><i class="fas fa-code"></i> Projects</div>
+    <div class="sidebar-link" data-target="skills"><i class="fas fa-tools"></i> Skills</div>
+    <div class="sidebar-link" data-target="experience"><i class="fas fa-briefcase"></i> Experience</div>
+    <div class="sidebar-link" data-target="certifications"><i class="fas fa-certificate"></i> Certifications</div>
+    <div class="sidebar-link" data-target="testimonials"><i class="fas fa-star"></i> Testimonials</div>
+    <div class="sidebar-link" data-target="gallery"><i class="fas fa-images"></i> Gallery</div>
+    <div class="sidebar-link" data-target="collaborations"><i class="fas fa-handshake"></i> Collaborations</div>
+    <div class="sidebar-link" data-target="resume"><i class="fas fa-file-alt"></i> Resume</div>
+    <div class="sidebar-section-label">Customise</div>
+    <div class="sidebar-link" data-target="profile"><i class="fas fa-user-circle"></i> Profile & Info</div>
+    <div class="sidebar-link" data-target="typing"><i class="fas fa-keyboard"></i> Typing Animation</div>
+    <div class="sidebar-link" data-target="sections"><i class="fas fa-eye-slash"></i> Section Visibility</div>
+    <div class="sidebar-link" data-target="theme"><i class="fas fa-paint-brush"></i> Theme</div>
+    <div class="sidebar-link" data-target="customhtml"><i class="fas fa-code"></i> Custom HTML</div>
+    <div class="sidebar-link" data-target="selling"><i class="fas fa-shopping-cart"></i> Selling Mode</div>
+    <div class="sidebar-section-label">More Content</div>
+    <div class="sidebar-link" data-target="blog"><i class="fas fa-newspaper"></i> Blog Posts</div>
+    <div class="sidebar-link" data-target="services"><i class="fas fa-concierge-bell"></i> Services</div>
+    <div class="sidebar-link" data-target="achievements"><i class="fas fa-trophy"></i> Achievements</div>
+    <div class="sidebar-link" data-target="announcements"><i class="fas fa-bullhorn"></i> Announcement</div>
+    <div class="sidebar-section-label">Site</div>
+    <div class="sidebar-link" data-target="favicon"><i class="fas fa-star"></i> Favicon</div>
+    <div class="sidebar-link" data-target="seo"><i class="fas fa-search"></i> SEO & Analytics</div>
+    <div class="sidebar-link" data-target="maintenance"><i class="fas fa-tools"></i> Maintenance</div>
+    <div class="sidebar-link" data-target="custom-links"><i class="fas fa-link"></i> Custom Links</div>
+    <div class="sidebar-link" data-target="site-users"><i class="fas fa-users"></i> Site Users</div>
+    <div class="sidebar-section-label">Account</div>
+    <div class="sidebar-link" data-target="security"><i class="fas fa-shield-alt"></i> Security</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">H</div>
+      <div><div class="sidebar-user-name">Harshil</div><div class="sidebar-user-role">Administrator</div></div>
+    </div>
+  </div>
+</aside>
+
+<div id="admin-main">
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Admin Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <a href="/" target="_blank" class="topbar-btn primary"><i class="fas fa-external-link-alt"></i> <span>View Site</span></a>
+      <button id="logout-btn" class="topbar-btn danger"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+    </div>
+  </header>
+
+  <div class="admin-content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="admin-panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-eye"></i></div><div><div class="stat-num">{{total_visits}}</div><div class="stat-label">Total Visits</div></div></div>
+        <div class="stat-card"><div class="stat-icon teal"><i class="fas fa-download"></i></div><div><div class="stat-num">{{total_downloads}}</div><div class="stat-label">CV Downloads</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-envelope"></i></div><div><div class="stat-num">{{messages|length}}</div><div class="stat-label">Messages</div></div></div>
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-code"></i></div><div><div class="stat-num">{{projects|length}}</div><div class="stat-label">Projects</div></div></div>
+      </div>
+      <div class="chart-wrap"><div class="chart-title">Visitors – Last 30 Days</div><canvas id="analytics-chart" width="800" height="200"></canvas></div>
+      {% if top_project %}<div class="admin-card"><div class="admin-card-title"><i class="fas fa-fire"></i> Most Viewed Project</div><strong>{{top_project.title}}</strong> — <span style="color:var(--secondary)">{{top_project.views}} views</span></div>{% endif %}
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-envelope"></i> Recent Messages</div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Subject</th><th>Date</th><th>Status</th></tr></thead><tbody>
+          {% for m in messages[:5] %}<tr><td>{{m.name}}</td><td>{{m.subject or '—'}}</td><td style="font-family:monospace;font-size:.78rem">{{m.created_at[:10]}}</td><td>{% if not m.is_read %}<span class="unread-badge">New</span>{% else %}<span style="color:var(--text-muted);font-size:.8rem">Read</span>{% endif %}</td></tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ MESSAGES ══ -->
+    <div class="admin-panel" id="panel-messages">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-envelope"></i> All Messages</div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Subject</th><th>Preview</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+          {% for m in messages %}
+          <tr style="cursor:pointer" onclick="openMsgDetail({{m.id}},'{{m.name|e}}','{{m.email or ''}}','{{m.phone or ''}}','{{m.subject or ''|e}}','{{m.message or ''|e|replace("'","&#39;")|replace(chr(10),"\\n")}}','{{m.created_at[:16]}}',{{0 if m.is_read else 1}})">
+            <td><strong>{{m.name}}</strong>{% if not m.is_read %}<span class="unread-badge">New</span>{% endif %}</td>
+            <td>{% if m.email %}<a href="mailto:{{m.email}}" style="color:var(--secondary)" onclick="event.stopPropagation()">{{m.email}}</a>{% else %}—{% endif %}</td>
+            <td>{% if m.phone %}<a href="tel:{{m.phone}}" style="color:var(--secondary)" onclick="event.stopPropagation()">{{m.phone}}</a>{% else %}—{% endif %}</td>
+            <td>{{m.subject or '—'}}</td>
+            <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:.82rem">{{(m.message or '')[:60]}}...</td>
+            <td style="font-family:monospace;font-size:.78rem">{{m.created_at[:10]}}</td>
+            <td><div class="td-actions" onclick="event.stopPropagation()">
+              {% if not m.is_read %}<button class="action-btn edit read-msg-btn" data-id="{{m.id}}" title="Mark read"><i class="fas fa-check"></i></button>{% endif %}
+              <button class="action-btn delete delete-msg-btn" data-id="{{m.id}}"><i class="fas fa-trash"></i></button>
+            </div></td>
+          </tr>
+          {% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ PROJECTS ══ -->
+    <div class="admin-panel" id="panel-projects">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between"><span><i class="fas fa-code"></i> Projects</span><button class="btn btn-primary btn-sm" id="add-project-btn"><i class="fas fa-plus"></i> Add Project</button></div>
+        <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:16px;"><i class="fas fa-info-circle" style="color:var(--secondary)"></i> Images are stored on the server. Upload JPG/PNG/WebP — max 50MB each.</p>
+        <div class="table-wrap"><table><thead><tr><th>Cover</th><th>Title</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+          {% for p in projects %}<tr>
+            <td>{% if p.cover_image %}<img src="/static/{{p.cover_image}}" class="td-img"/>{% else %}<span style="color:var(--text-muted)">None</span>{% endif %}</td>
+            <td><strong>{{p.title}}</strong></td><td>{{p.category|title}}</td>
+            <td><span class="status-badge status-{{p.status}}">{{p.status}}</span></td>
+            <td>{{p.date or '—'}}</td>
+            <td><div class="td-actions">
+              <button class="action-btn edit edit-project-btn" data-id="{{p.id}}"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete delete-project-btn" data-id="{{p.id}}"><i class="fas fa-trash"></i></button>
+            </div></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SKILLS ══ -->
+    <div class="admin-panel" id="panel-skills">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between"><span><i class="fas fa-tools"></i> Skills</span><button class="btn btn-primary btn-sm" id="add-skill-btn"><i class="fas fa-plus"></i> Add Skill</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Skill</th><th>Category</th><th>Level</th><th>Actions</th></tr></thead><tbody>
+          {% for s in skills %}<tr>
+            <td><strong>{{s.name}}</strong>{% if s.icon %} <i class="{{s.icon}}" style="color:var(--secondary);margin-left:4px"></i>{% endif %}</td>
+            <td>{{s.category|title}}</td>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;height:6px;background:var(--bg);border-radius:99px;overflow:hidden;"><div style="width:{{s.level}}%;height:100%;background:linear-gradient(90deg,#1a73e8,#00d4ff);border-radius:99px;"></div></div><span style="font-family:monospace;font-size:.78rem;color:var(--secondary)">{{s.level}}%</span></div></td>
+            <td><div class="td-actions"><button class="action-btn edit edit-skill-btn" data-id="{{s.id}}"><i class="fas fa-edit"></i></button><button class="action-btn delete delete-skill-btn" data-id="{{s.id}}"><i class="fas fa-trash"></i></button></div></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ EXPERIENCE ══ -->
+    <div class="admin-panel" id="panel-experience">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between"><span><i class="fas fa-briefcase"></i> Experience</span><button class="btn btn-primary btn-sm" id="add-exp-btn"><i class="fas fa-plus"></i> Add</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Position</th><th>Company</th><th>Duration</th><th>Location</th><th>Actions</th></tr></thead><tbody>
+          {% for e in experience %}<tr>
+            <td><strong>{{e.position}}</strong></td><td>{{e.company}}</td>
+            <td>{{e.duration or (e.start_date+' – '+(e.end_date or 'Present'))}}</td>
+            <td>{{e.location or '—'}}</td>
+            <td><div class="td-actions"><button class="action-btn edit edit-exp-btn" data-id="{{e.id}}"><i class="fas fa-edit"></i></button><button class="action-btn delete delete-exp-btn" data-id="{{e.id}}"><i class="fas fa-trash"></i></button></div></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ CERTIFICATIONS ══ -->
+    <div class="admin-panel" id="panel-certifications">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between"><span><i class="fas fa-certificate"></i> Certifications</span><button class="btn btn-primary btn-sm" id="add-cert-btn"><i class="fas fa-plus"></i> Add</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Image</th><th>Title</th><th>Organization</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+          {% for c in certs %}<tr>
+            <td>{% if c.image %}<img src="/static/{{c.image}}" class="td-img"/>{% else %}—{% endif %}</td>
+            <td><strong>{{c.title}}</strong></td><td>{{c.organization or '—'}}</td><td>{{c.date or '—'}}</td>
+            <td><button class="action-btn delete delete-cert-btn" data-id="{{c.id}}"><i class="fas fa-trash"></i></button></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ TESTIMONIALS ══ -->
+    <div class="admin-panel" id="panel-testimonials">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between"><span><i class="fas fa-star"></i> Testimonials</span><button class="btn btn-primary btn-sm" id="add-testimonial-btn"><i class="fas fa-plus"></i> Add</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Photo</th><th>Name</th><th>Company</th><th>Rating</th><th>Actions</th></tr></thead><tbody>
+          {% for t in testimonials %}<tr>
+            <td>{% if t.image %}<img src="/static/{{t.image}}" class="td-img" style="border-radius:50%"/>{% else %}—{% endif %}</td>
+            <td><strong>{{t.name}}</strong></td><td>{{t.company or '—'}}</td>
+            <td style="color:#fbbf24">{% for i in range(t.rating or 5) %}★{% endfor %}</td>
+            <td><button class="action-btn delete delete-testimonial-btn" data-id="{{t.id}}"><i class="fas fa-trash"></i></button></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ GALLERY ══ -->
+    <div class="admin-panel" id="panel-gallery">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-upload"></i> Upload to Gallery</div>
+        <form id="gallery-upload-form">
+          <div class="form-grid">
+            <div class="form-group"><label>Title (optional)</label><input type="text" name="title" class="form-control"/></div>
+            <div class="form-group"><label>Category</label><select name="category" class="form-control"><option value="general">General</option><option value="work">Work</option><option value="events">Events</option><option value="personal">Personal</option></select></div>
+            <div class="form-group full"><label>File (Image or Video — max 50MB)</label><input type="file" name="file" class="form-control" accept="image/*,video/*" required/></div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload</button>
+        </form>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-images"></i> Gallery Items</div>
+        <div class="table-wrap"><table><thead><tr><th>Preview</th><th>Title</th><th>Type</th><th>Category</th><th>Actions</th></tr></thead><tbody>
+          {% for g in gallery %}<tr>
+            <td>{% if g.file_type=='image' %}<img src="/static/{{g.file_path}}" class="td-img"/>{% else %}🎬{% endif %}</td>
+            <td>{{g.title or '—'}}</td><td>{{g.file_type|title}}</td><td>{{g.category|title}}</td>
+            <td><button class="action-btn delete delete-gallery-btn" data-id="{{g.id}}"><i class="fas fa-trash"></i></button></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ COLLABORATIONS ══ -->
+    <div class="admin-panel" id="panel-collaborations">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between"><span><i class="fas fa-handshake"></i> Collaborations</span><button class="btn btn-primary btn-sm" id="add-collab-btn"><i class="fas fa-plus"></i> Add</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Logo</th><th>Name</th><th>Type</th><th>Website</th><th>Actions</th></tr></thead><tbody>
+          {% for c in collabs %}<tr>
+            <td>{% if c.logo %}<img src="/static/{{c.logo}}" class="td-img"/>{% else %}—{% endif %}</td>
+            <td><strong>{{c.name}}</strong></td><td>{{c.type|title}}</td>
+            <td>{% if c.website %}<a href="{{c.website}}" target="_blank" style="color:var(--secondary)">Visit</a>{% else %}—{% endif %}</td>
+            <td><button class="action-btn delete delete-collab-btn" data-id="{{c.id}}"><i class="fas fa-trash"></i></button></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ RESUME ══ -->
+    <div class="admin-panel" id="panel-resume">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-file-alt"></i> Upload CV / Resume</div>
+        <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Accepted: <strong>PDF, JPG, PNG</strong>. Visitors can view and download it.</p>
+        <form id="resume-upload-form">
+          <div class="form-group"><label>CV File</label><input type="file" name="resume" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required/></div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload CV</button>
+        </form>
+        {% if resume %}
+        <hr style="margin:24px 0;border:none;border-top:1px solid var(--border)"/>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div><strong>Current:</strong> {{resume.file_path.rsplit('/',1)[-1]}}<br/><span style="font-size:.8rem;color:var(--text-muted)">Type: {{(resume.file_type or 'pdf')|upper}} | Downloads: {{resume.download_count}}</span></div>
+          {% set cv_ext = resume.file_path.rsplit('.',1)[-1].lower() if resume.file_path else 'pdf' %}
+          {% if cv_ext in ['jpg','jpeg','png'] %}<img src="/static/{{resume.file_path}}" style="height:80px;border-radius:8px;border:2px solid var(--border);object-fit:cover"/>{% endif %}
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <a href="/static/{{resume.file_path}}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i> View</a>
+          <a href="/api/resume/download" class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Download</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ══ PROFILE & INFO ══ -->
+    <div class="admin-panel" id="panel-profile">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-user-circle"></i> Profile Settings</div>
+        <form id="settings-form">
+          <div class="form-grid">
+            <div class="form-group"><label>Full Name (shown across the site)</label><input type="text" name="site_name" class="form-control" value="{{s.get('site_name',s.get('name',''))}}"/></div>
+            <div class="form-group"><label>Nav Logo Text <small style="color:var(--text-muted);font-weight:400">(top-left, e.g. H.Khandhar)</small></label><input type="text" name="nav_logo" class="form-control" value="{{s.get('nav_logo','H.Khandhar')}}" placeholder="H.Khandhar"/></div>
+            <div class="form-group"><label>Footer Display Name</label><input type="text" name="footer_name" class="form-control" value="{{s.get('footer_name',s.get('site_name',s.get('name','')))}}" placeholder="Harshil Sandip Khandhar"/></div>
+            <div class="form-group"><label>Footer Copyright Text</label><input type="text" name="footer_copyright" class="form-control" value="{{s.get('footer_copyright','All rights reserved.')}}" placeholder="All rights reserved."/></div>
+            <div class="form-group full">
+              <label><i class="fas fa-spinner" style="color:var(--secondary);margin-right:6px"></i>Loading Screen Text <small style="color:var(--text-muted);font-weight:400">(shown while page loads — e.g. HSK, HK, MyBrand)</small></label>
+              <input type="text" name="loader_text" class="form-control" value="{{s.get('loader_text','HSK')}}" placeholder="HSK" maxlength="20"/>
+              <div style="margin-top:8px;padding:12px 16px;background:var(--bg);border-radius:8px;display:flex;align-items:center;gap:12px">
+                <div style="background:#0a2540;border-radius:8px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center">
+                  <span id="loader-preview" style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;font-weight:700;color:#fff">{{s.get('loader_text','HSK')}}</span>
+                </div>
+                <span style="font-size:.82rem;color:var(--text-muted)">← Preview. Changes reflect after saving.</span>
+              </div>
+            </div>
+            <div class="form-group"><label>Tagline</label><input type="text" name="tagline" class="form-control" value="{{s.get('tagline','')}}"/></div>
+            <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" value="{{s.get('email','')}}"/></div>
+            <div class="form-group"><label>Phone</label><input type="text" name="phone" class="form-control" value="{{s.get('phone','')}}"/></div>
+            <div class="form-group"><label>Location</label><input type="text" name="location" class="form-control" value="{{s.get('location','')}}"/></div>
+            <div class="form-group"><label>Years Experience</label><input type="number" name="years_experience" class="form-control" value="{{s.get('years_experience','3')}}"/></div>
+            <div class="form-group"><label>Projects Completed</label><input type="number" name="projects_completed" class="form-control" value="{{s.get('projects_completed','25')}}"/></div>
+            <div class="form-group"><label>Clients Served</label><input type="number" name="clients_served" class="form-control" value="{{s.get('clients_served','15')}}"/></div>
+            <div class="form-group"><label>GitHub URL</label><input type="url" name="github" class="form-control" value="{{s.get('github','')}}"/></div>
+            <div class="form-group"><label>LinkedIn URL</label><input type="url" name="linkedin" class="form-control" value="{{s.get('linkedin','')}}"/></div>
+            <div class="form-group"><label>Twitter URL</label><input type="url" name="twitter" class="form-control" value="{{s.get('twitter','')}}"/></div>
+            <div class="form-group"><label>Instagram URL</label><input type="url" name="instagram" class="form-control" value="{{s.get('instagram','')}}"/></div>
+            <div class="form-group full"><label>Short Bio</label><input type="text" name="bio" class="form-control" value="{{s.get('bio','')}}"/></div>
+            <div class="form-group full"><label>About Text (long paragraph)</label><textarea name="about_text" class="form-control" rows="5">{{s.get('about_text','')}}</textarea></div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Settings</button>
+        </form>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-images"></i> Profile & Cover Images</div>
+        <form id="profile-upload-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Profile Photo</label>
+              <input type="file" name="profile_photo" class="form-control file-input-preview" accept="image/*" data-preview="profile-preview"/>
+              <img id="profile-preview" class="upload-preview" {% if s.get('profile_photo') %}src="/static/{{s.profile_photo}}" style="display:block;margin-top:8px"{% endif %}/>
+            </div>
+            <div class="form-group">
+              <label>Cover Image</label>
+              <input type="file" name="cover_image" class="form-control file-input-preview" accept="image/*" data-preview="cover-preview"/>
+              <img id="cover-preview" class="upload-preview" {% if s.get('cover_image') %}src="/static/{{s.cover_image}}" style="display:block;margin-top:8px"{% endif %}/>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Images</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ TYPING ANIMATION ══ -->
+    <div class="admin-panel" id="panel-typing">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-keyboard"></i> Typing Animation Phrases</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:20px;">Enter one phrase per line. These rotate in the hero typing animation.</p>
+        <form id="typing-form">
+          <div class="form-group">
+            <label>Phrases (one per line)</label>
+            <textarea id="typing-phrases-input" class="form-control" rows="8" placeholder="Full Stack Developer&#10;AI Enthusiast&#10;Problem Solver&#10;Open Source Contributor">{{s.get('typing_phrases','Full Stack Developer|AI Enthusiast|Problem Solver').replace('|','\n')}}</textarea>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Phrases</button>
+        </form>
+        <div style="margin-top:20px;padding:16px;background:rgba(26,115,232,.06);border-radius:10px;font-size:.82rem;color:var(--text-muted)">
+          <i class="fas fa-lightbulb" style="color:var(--secondary);margin-right:6px"></i>
+          Preview: The hero will type <strong>"I'm a [phrase]"</strong> for each phrase in order, then loop.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTION VISIBILITY ══ -->
+    <div class="admin-panel" id="panel-sections">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-eye-slash"></i> Section Visibility</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:24px;">Toggle to show or hide sections from visitors. Changes save instantly.</p>
+        {% set section_list = [
+          ("section_about","About","fa-user"),
+          ("section_skills","Skills","fa-tools"),
+          ("section_portfolio","Portfolio","fa-code"),
+          ("section_collaborations","Collaborations","fa-handshake"),
+          ("section_experience","Professional Journey","fa-briefcase"),
+          ("section_certifications","Certifications","fa-certificate"),
+          ("section_testimonials","Testimonials","fa-star"),
+          ("section_gallery","Gallery","fa-images"),
+          ("section_resume","Resume / CV","fa-file-alt"),
+          ("section_contact","Contact","fa-envelope"),
+          ("section_blog","Blog","fa-newspaper"),
+          ("section_services","Services","fa-concierge-bell"),
+          ("section_achievements","Achievements","fa-trophy")
+        ] %}
+        {% for key,label,icon in section_list %}
+        {% set is_on = s.get(key,'1')=='1' %}
+        <div class="section-toggle-row">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:{% if is_on %}rgba(26,115,232,0.1){% else %}rgba(0,0,0,0.05){% endif %};color:{% if is_on %}var(--secondary){% else %}var(--text-muted){% endif %}"><i class="fas {{icon}}"></i></div>
+            <div><div style="font-weight:600;font-size:.9rem;color:var(--text)">{{label}}</div><div class="toggle-desc" style="font-size:.75rem;color:var(--text-muted);margin-top:2px">{% if is_on %}Visible to visitors{% else %}Hidden from visitors{% endif %}</div></div>
+          </div>
+          <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0">
+            <input type="checkbox" class="section-vis-toggle" data-key="{{key}}" {% if is_on %}checked{% endif %} style="opacity:0;width:0;height:0;position:absolute"/>
+            <span style="position:absolute;cursor:pointer;inset:0;background:{% if is_on %}var(--secondary){% else %}#cbd5e1{% endif %};border-radius:28px;transition:background .3s"><span style="position:absolute;height:20px;width:20px;left:{% if is_on %}28px{% else %}4px{% endif %};bottom:4px;background:white;border-radius:50%;transition:left .3s;display:block"></span></span>
+          </label>
+        </div>
+        {% endfor %}
+        <div style="margin-top:16px;padding:14px;background:rgba(26,115,232,.05);border-radius:10px;font-size:.82rem;color:var(--text-muted)"><i class="fas fa-info-circle" style="color:var(--secondary);margin-right:6px"></i>Refresh the portfolio site to see changes.</div>
+      </div>
+    </div>
+
+    <!-- ══ THEME ══ -->
+    <div class="admin-panel" id="panel-theme">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-paint-brush"></i> Theme Customizer</div>
+        <form id="theme-form">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+            <div class="color-group"><label>Primary Color</label><input type="color" class="color-input" name="primary_color" value="{{s.get('primary_color','#0a2540')}}" data-cssvar="--primary"/></div>
+            <div class="color-group"><label>Secondary Color</label><input type="color" class="color-input" name="secondary_color" value="{{s.get('secondary_color','#1a73e8')}}" data-cssvar="--secondary"/></div>
+            <div class="color-group"><label>Accent Color</label><input type="color" class="color-input" name="accent_color" value="{{s.get('accent_color','#00d4ff')}}" data-cssvar="--accent"/></div>
+          </div>
+          <div class="form-group"><label>Heading Font</label>
+            <select name="font_heading" class="form-control">
+              {% for f in ['Playfair Display','Cormorant Garamond','DM Serif Display','Fraunces','Lora'] %}
+              <option {% if s.get('font_heading')==f %}selected{% endif %}>{{f}}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group"><label>Body Font</label>
+            <select name="font_body" class="form-control">
+              {% for f in ['DM Sans','Outfit','Inter','Plus Jakarta Sans','Nunito'] %}
+              <option {% if s.get('font_body')==f %}selected{% endif %}>{{f}}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="margin-top:20px">
+            <label><i class="fas fa-code" style="margin-right:6px;color:var(--secondary)"></i>Custom CSS (injected into all pages)</label>
+            <textarea name="custom_css" class="form-control" rows="8" style="font-family:monospace;font-size:.85rem" placeholder="/* Add your custom styles here */&#10;.my-class { color: red; }">{{s.get('custom_css','')|e}}</textarea>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="saveTheme()"><i class="fas fa-save"></i> Save Theme</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ CUSTOM HTML ══ -->
+    <div class="admin-panel" id="panel-customhtml">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-code"></i> Custom HTML Injection</div>
+        <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px;margin-bottom:20px;font-size:.85rem;color:#dc2626">
+          <i class="fas fa-exclamation-triangle" style="margin-right:6px"></i>
+          <strong>Advanced:</strong> Only paste trusted HTML/JS. Broken code can affect the site.
+        </div>
+        <form id="custom-html-form">
+          <div class="form-group">
+            <label><i class="fas fa-head-side-cough" style="margin-right:6px;color:var(--secondary)"></i> Inject into &lt;head&gt; (analytics scripts, meta tags, CSS links)</label>
+            <textarea id="custom_html_head" name="custom_html_head" class="form-control" rows="8" style="font-family:monospace;font-size:.85rem" placeholder="<!-- e.g. Google Analytics, custom CSS -->&#10;<script src=&quot;...&quot;></script>">{{s.get('custom_html_head','')|e}}</textarea>
+          </div>
+          <div class="form-group" style="margin-top:20px">
+            <label><i class="fas fa-code" style="margin-right:6px;color:var(--secondary)"></i> Inject before &lt;/body&gt; (widgets, chat, popups)</label>
+            <textarea id="custom_html_body" name="custom_html_body" class="form-control" rows="8" style="font-family:monospace;font-size:.85rem" placeholder="<!-- e.g. Tawk.to chat, custom JS widget -->&#10;<div id=&quot;my-widget&quot;>...</div>">{{s.get('custom_html_body','')|e}}</textarea>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save & Inject HTML</button>
+          <button type="button" class="btn btn-secondary" style="margin-left:10px" onclick="clearCustomHtml('head')"><i class="fas fa-times"></i> Clear Head</button>
+          <button type="button" class="btn btn-secondary" style="margin-left:10px" onclick="clearCustomHtml('body')"><i class="fas fa-times"></i> Clear Body</button>
+          <button type="button" class="btn btn-danger" style="margin-left:10px" onclick="clearCustomHtml('both')"><i class="fas fa-trash"></i> Clear Both</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ SELLING MODE ══ -->
+    <div class="admin-panel" id="panel-selling">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-shopping-cart"></i> Selling Mode</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:20px;">When enabled, a "Buy This Portfolio" banner appears on the site so you can sell copies of this portfolio to others.</p>
+        <div style="display:flex;align-items:center;gap:16px;padding:20px;background:var(--bg);border-radius:12px;margin-bottom:24px">
+          <label style="position:relative;display:inline-block;width:60px;height:32px;flex-shrink:0">
+            <input type="checkbox" id="selling-mode-toggle" {% if s.get('selling_mode','0')=='1' %}checked{% endif %} style="opacity:0;width:0;height:0;position:absolute"/>
+            <span style="position:absolute;cursor:pointer;inset:0;background:{% if s.get('selling_mode','0')=='1' %}#10b981{% else %}#cbd5e1{% endif %};border-radius:32px;transition:background .3s"><span style="position:absolute;height:24px;width:24px;left:{% if s.get('selling_mode','0')=='1' %}32px{% else %}4px{% endif %};bottom:4px;background:white;border-radius:50%;transition:left .3s;display:block"></span></span>
+          </label>
+          <div>
+            <div style="font-weight:700;color:var(--text)">Selling Mode</div>
+            <div id="selling-mode-label" style="font-size:.8rem;color:var(--text-muted)">{% if s.get('selling_mode','0')=='1' %}Selling Mode ON — banner visible to visitors{% else %}Selling Mode OFF{% endif %}</div>
+          </div>
+        </div>
+        <form id="selling-form">
+          <input type="hidden" name="selling_mode" value="{{s.get('selling_mode','0')}}"/>
+          <div class="form-grid">
+            <div class="form-group"><label>Banner Title</label><input type="text" name="selling_title" class="form-control" value="{{s.get('selling_title','Get This Portfolio')}}" placeholder="Get This Portfolio"/></div>
+            <div class="form-group"><label>Price</label><input type="text" name="selling_price" class="form-control" value="{{s.get('selling_price','$99')}}" placeholder="$99"/></div>
+            <div class="form-group full"><label>Description</label><textarea name="selling_desc" class="form-control" rows="3">{{s.get('selling_desc','')}}</textarea></div>
+            <div class="form-group full"><label>Features (one per line)</label><textarea name="selling_features" class="form-control" rows="5" placeholder="Full admin dashboard&#10;Mobile responsive&#10;Dark/Light mode">{{s.get('selling_features','').replace('|','\n')}}</textarea></div>
+            <div class="form-group"><label>Contact Email for Buyers</label><input type="email" name="selling_contact_email" class="form-control" value="{{s.get('selling_contact_email','')}}"/></div>
+            <div class="form-group"><label>Live Demo URL (optional)</label><input type="url" name="selling_demo_url" class="form-control" value="{{s.get('selling_demo_url','')}}"/></div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Selling Settings</button>
+        </form>
+        <div style="margin-top:24px;padding:16px;background:rgba(16,185,129,.06);border-radius:10px;font-size:.85rem;color:var(--text-muted)">
+          <strong style="color:#10b981"><i class="fas fa-lightbulb"></i> How it works:</strong><br/>
+          When enabled, a sticky banner appears at the bottom of your portfolio saying "This portfolio is available for purchase". Interested buyers click it, fill a form, and their inquiry lands in your <strong>Messages</strong> inbox above.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECURITY ══ -->
+    <div class="admin-panel" id="panel-security">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-shield-alt"></i> Change Password</div>
+        <form id="change-pw-form" style="max-width:400px">
+          <div class="form-group"><label>New Password</label><input type="password" id="new-password" class="form-control" minlength="6" required/></div>
+          <div class="form-group"><label>Confirm Password</label><input type="password" id="confirm-password" class="form-control" minlength="6" required/></div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> Update Password</button>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- ══ BLOG PANEL ══ -->
+    <div class="admin-panel" id="panel-blog">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between">
+          <span><i class="fas fa-newspaper"></i> Blog Posts</span>
+          <button class="btn btn-primary btn-sm" id="add-blog-btn"><i class="fas fa-plus"></i> New Post</button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:16px"><i class="fas fa-info-circle" style="color:var(--secondary)"></i> Write rich stories with images. Content supports HTML formatting.</p>
+        <div class="table-wrap"><table><thead><tr><th>Cover</th><th>Title</th><th>Category</th><th>Status</th><th>Views</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+          {% for p in blog_posts %}
+          <tr>
+            <td>{% if p.cover_image %}<img src="/static/{{ p.cover_image }}" class="td-img"/>{% else %}<span style="color:var(--text-muted)">None</span>{% endif %}</td>
+            <td><strong>{{ p.title }}</strong></td>
+            <td>{{ p.category|title }}</td>
+            <td><span class="status-badge {% if p.status=='published' %}status-completed{% else %}status-planned{% endif %}">{{ p.status }}</span></td>
+            <td>{{ p.views }}</td>
+            <td style="font-family:monospace;font-size:.78rem">{{ p.created_at[:10] }}</td>
+            <td><div class="td-actions">
+              <a href="/blog/{{ p.slug }}" target="_blank" class="action-btn view"><i class="fas fa-eye"></i></a>
+              <button class="action-btn edit edit-blog-btn" data-id="{{ p.id }}"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete delete-blog-btn" data-id="{{ p.id }}"><i class="fas fa-trash"></i></button>
+            </div></td>
+          </tr>
+          {% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SERVICES PANEL ══ -->
+    <div class="admin-panel" id="panel-services">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between">
+          <span><i class="fas fa-concierge-bell"></i> Services</span>
+          <button class="btn btn-primary btn-sm" id="add-service-btn"><i class="fas fa-plus"></i> Add Service</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Icon</th><th>Title</th><th>Price</th><th>Order</th><th>Actions</th></tr></thead><tbody>
+          {% for svc in services %}
+          <tr>
+            <td><i class="{{ svc.icon or 'fas fa-code' }}" style="font-size:1.2rem;color:var(--secondary)"></i></td>
+            <td><strong>{{ svc.title }}</strong></td>
+            <td>{{ svc.price or '—' }}</td>
+            <td>{{ svc.sort_order }}</td>
+            <td><div class="td-actions">
+              <button class="action-btn edit edit-service-btn" data-id="{{ svc.id }}"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete delete-service-btn" data-id="{{ svc.id }}"><i class="fas fa-trash"></i></button>
+            </div></td>
+          </tr>
+          {% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ ACHIEVEMENTS PANEL ══ -->
+    <div class="admin-panel" id="panel-achievements">
+      <div class="admin-card">
+        <div class="admin-card-title" style="justify-content:space-between">
+          <span><i class="fas fa-trophy"></i> Achievements / Stats</span>
+          <button class="btn btn-primary btn-sm" id="add-achievement-btn"><i class="fas fa-plus"></i> Add Achievement</button>
+        </div>
+        <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:16px">These appear in a dark banner section on the portfolio. Great for "500+ GitHub stars", "10k downloads", etc.</p>
+        <div class="table-wrap"><table><thead><tr><th>Icon</th><th>Title</th><th>Value</th><th>Color</th><th>Actions</th></tr></thead><tbody>
+          {% for a in achievements %}
+          <tr>
+            <td><i class="{{ a.icon }}" style="color:{{ a.color }};font-size:1.2rem"></i></td>
+            <td><strong>{{ a.title }}</strong></td>
+            <td style="font-family:monospace;font-weight:700;color:var(--secondary)">{{ a.value }}</td>
+            <td><div style="width:24px;height:24px;border-radius:50%;background:{{ a.color }};display:inline-block"></div></td>
+            <td><div class="td-actions">
+              <button class="action-btn edit edit-achievement-btn" data-id="{{ a.id }}"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete delete-achievement-btn" data-id="{{ a.id }}"><i class="fas fa-trash"></i></button>
+            </div></td>
+          </tr>
+          {% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ ANNOUNCEMENTS PANEL ══ -->
+    <div class="admin-panel" id="panel-announcements">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-bullhorn"></i> Site Announcement Bar</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:20px">A colored bar shown at the very top of your site. Only one can be active at a time.</p>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:var(--bg);border-radius:10px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600">
+            <input type="checkbox" id="announcement-toggle" {% if s.get('announcement_enabled','0')=='1' %}checked{% endif %} style="width:16px;height:16px;accent-color:var(--secondary)"/>
+            Show announcement bar to visitors
+          </label>
+        </div>
+        <form id="announcement-form">
+          <div class="form-grid">
+            <div class="form-group full"><label>Announcement Text *</label><input type="text" name="text" class="form-control" placeholder="🎉 New project launched! Check it out →" required/></div>
+            <div class="form-group"><label>Link URL (optional)</label><input type="url" name="link" class="form-control" placeholder="https://..."/></div>
+            <div class="form-group"><label>Link Label</label><input type="text" name="link_label" class="form-control" value="Learn more" placeholder="Learn more"/></div>
+            <div class="form-group"><label>Background Color</label><input type="color" name="bg_color" class="form-control" value="#1a73e8" style="height:42px"/></div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-bullhorn"></i> Set Announcement</button>
+        </form>
+        {% if announcements %}
+        <hr style="margin:24px 0;border:none;border-top:1px solid var(--border)"/>
+        <div class="table-wrap"><table><thead><tr><th>Text</th><th>Active</th><th>Actions</th></tr></thead><tbody>
+          {% for a in announcements %}<tr>
+            <td>{{ a.text[:60] }}...</td>
+            <td>{% if a.is_active %}<span class="status-badge status-completed">Active</span>{% else %}<span class="status-badge status-planned">Inactive</span>{% endif %}</td>
+            <td><button class="action-btn delete delete-announcement-btn" data-id="{{ a.id }}"><i class="fas fa-trash"></i></button></td>
+          </tr>{% endfor %}
+        </tbody></table></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ══ FAVICON PANEL ══ -->
+    <div class="admin-panel" id="panel-favicon">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-star"></i> Favicon</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:20px">The small icon shown in browser tabs. Upload a .ico, .png or .svg file (recommended: 32×32px or 64×64px).</p>
+        {% if s.get('favicon') %}
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:var(--bg);border-radius:10px">
+          <img src="/static/{{ s.favicon }}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;border:2px solid var(--border)"/>
+          <div><div style="font-weight:600;color:var(--text)">Current Favicon</div><div style="font-size:.8rem;color:var(--text-muted)">{{ s.favicon.rsplit('/',1)[-1] }}</div></div>
+        </div>
+        {% endif %}
+        <form id="favicon-form" enctype="multipart/form-data">
+          <div class="form-group">
+            <label>Upload Favicon (.ico, .png, .svg)</label>
+            <input type="file" name="favicon" class="form-control file-input-preview" accept=".ico,.png,.svg,.jpg" data-preview="favicon-preview" required/>
+            <img id="favicon-preview" class="upload-preview" style="width:64px;height:64px;object-fit:contain"/>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Favicon</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ SEO & ANALYTICS PANEL ══ -->
+    <div class="admin-panel" id="panel-seo">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-search"></i> SEO & Analytics</div>
+        <form id="seo-form">
+          <div class="form-grid">
+            <div class="form-group full"><label>SEO Keywords (comma-separated)</label><input type="text" name="seo_keywords" class="form-control" value="{{ s.get('seo_keywords','') }}" placeholder="developer, portfolio, AI, Flask"/></div>
+            <div class="form-group full"><label>OG Image URL (for social sharing preview)</label><input type="text" name="og_image" class="form-control" value="{{ s.get('og_image','') }}" placeholder="https://your-site.com/static/uploads/og.jpg"/></div>
+            <div class="form-group"><label>Google Analytics ID</label><input type="text" name="google_analytics_id" class="form-control" value="{{ s.get('google_analytics_id','') }}" placeholder="G-XXXXXXXXXX"/></div>
+            <div class="form-group"><label>Tawk.to Chat ID</label><input type="text" name="tawk_id" class="form-control" value="{{ s.get('tawk_id','') }}" placeholder="your-tawk-id"/></div>
+            <div class="form-group"><label>WhatsApp Number</label><input type="text" name="whatsapp" class="form-control" value="{{ s.get('whatsapp','') }}" placeholder="+919876543210"/></div>
+            <div class="form-group"><label>YouTube URL</label><input type="url" name="youtube" class="form-control" value="{{ s.get('youtube','') }}"/></div>
+            <div class="form-group"><label>Dribbble URL</label><input type="url" name="dribbble" class="form-control" value="{{ s.get('dribbble','') }}"/></div>
+            <div class="form-group"><label>Behance URL</label><input type="url" name="behance" class="form-control" value="{{ s.get('behance','') }}"/></div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save SEO Settings</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ MAINTENANCE PANEL ══ -->
+    <div class="admin-panel" id="panel-maintenance">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-tools"></i> Maintenance Mode</div>
+        <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px;margin-bottom:24px;font-size:.85rem;color:#dc2626">
+          <i class="fas fa-exclamation-triangle" style="margin-right:6px"></i><strong>Warning:</strong> Enabling maintenance mode will show a "Coming Back Soon" page to all visitors. You can still access /admin.
+        </div>
+        <form id="maintenance-form">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:var(--bg);border-radius:10px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;color:var(--text)">
+              <input type="checkbox" name="maintenance_mode" value="1" id="maintenance-toggle" {% if s.get('maintenance_mode','0')=='1' %}checked{% endif %} style="width:16px;height:16px;accent-color:#ef4444"/>
+              <span>Enable Maintenance Mode</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Maintenance Message</label>
+            <textarea name="maintenance_msg" class="form-control" rows="3">{{ s.get('maintenance_msg','Site under maintenance. Back soon!') }}</textarea>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- ══ CUSTOM LINKS ══ -->
+    <div class="admin-panel" id="panel-custom-links">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-link"></i> Custom Links</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:20px">Add extra links to your navbar, footer, or both. Great for connecting external pages, social profiles, or any URL.</p>
+        <form id="custom-link-form">
+          <div class="form-grid">
+            <div class="form-group"><label>Label *</label><input type="text" name="label" class="form-control" placeholder="My Behance" required/></div>
+            <div class="form-group"><label>URL *</label><input type="url" name="url" class="form-control" placeholder="https://behance.net/..." required/></div>
+            <div class="form-group"><label>FontAwesome Icon</label><input type="text" name="icon" class="form-control" value="fas fa-link" placeholder="fab fa-behance"/></div>
+            <div class="form-group"><label>Show In</label>
+              <select name="location" class="form-control">
+                <option value="navbar">Navigation Bar</option>
+                <option value="footer">Footer</option>
+                <option value="both">Both</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Open In</label>
+              <select name="open_new_tab" class="form-control">
+                <option value="1">New Tab</option>
+                <option value="0">Same Tab</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Sort Order</label><input type="number" name="sort_order" class="form-control" value="0"/></div>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Link</button>
+        </form>
+        <hr style="margin:24px 0;border:none;border-top:1px solid var(--border)"/>
+        <div class="table-wrap"><table><thead><tr><th>Icon</th><th>Label</th><th>URL</th><th>Location</th><th>Actions</th></tr></thead><tbody>
+          {% for lnk in custom_links %}
+          <tr>
+            <td><i class="{{ lnk.icon or 'fas fa-link' }}" style="color:var(--secondary)"></i></td>
+            <td><strong>{{ lnk.label }}</strong></td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><a href="{{ lnk.url }}" target="_blank" style="color:var(--secondary)">{{ lnk.url }}</a></td>
+            <td>{{ lnk.location|title }}</td>
+            <td><button class="action-btn delete delete-custom-link-btn" data-id="{{ lnk.id }}"><i class="fas fa-trash"></i></button></td>
+          </tr>
+          {% endfor %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ SITE USERS ══ -->
+    <div class="admin-panel" id="panel-site-users">
+      <div class="admin-card">
+        <div class="admin-card-title"><i class="fas fa-users"></i> Site Users</div>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:20px">Visitors who have registered on your site. Enable/disable registration below.</p>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:var(--bg);border-radius:10px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600">
+            <input type="checkbox" id="registration-toggle" {% if s.get('users_can_register','0')=='1' %}checked{% endif %} style="width:16px;height:16px;accent-color:var(--secondary)"/>
+            Allow visitors to register and sign in
+          </label>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead><tbody>
+          {% for u in site_users %}
+          <tr>
+            <td><strong>{{ u.name }}</strong></td>
+            <td>{{ u.email }}</td>
+            <td style="font-family:monospace;font-size:.78rem">{{ u.created_at[:10] }}</td>
+          </tr>
+          {% endfor %}
+          {% if not site_users %}<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px">No registered users yet.</td></tr>{% endif %}
+        </tbody></table></div>
+      </div>
+    </div>
+
+  </div><!-- /admin-content -->
+</div><!-- /admin-main -->
+
+<!-- ══ PROJECT MODAL ══ -->
+<div class="modal-overlay" id="project-modal">
+  <div class="admin-modal">
+    <div class="modal-header"><h3 id="project-modal-title">Add Project</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="project-id"/>
+      <form id="project-form" enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="form-group full"><label>Title *</label><input type="text" name="title" class="form-control" required/></div>
+          <div class="form-group full"><label>Description</label><textarea name="description" class="form-control"></textarea></div>
+          <div class="form-group"><label>Technologies (comma-separated)</label><input type="text" name="technologies" class="form-control" placeholder="React, Python, MySQL"/></div>
+          <div class="form-group"><label>Category</label><select name="category" class="form-control"><option value="web">Web Dev</option><option value="ai">AI/ML</option><option value="mobile">Mobile</option><option value="design">Design</option><option value="other">Other</option></select></div>
+          <div class="form-group"><label>GitHub Link</label><input type="url" name="github_link" class="form-control"/></div>
+          <div class="form-group"><label>Live Demo Link</label><input type="url" name="live_link" class="form-control"/></div>
+          <div class="form-group"><label>Status</label><select name="status" class="form-control"><option value="completed">Completed</option><option value="in-progress">In Progress</option><option value="planned">Planned</option></select></div>
+          <div class="form-group"><label>Date</label><input type="text" name="date" class="form-control" placeholder="Jan 2024"/></div>
+          <div class="form-group full"><label>Key Features (one per line)</label><textarea name="features" class="form-control" rows="4"></textarea></div>
+          <div class="form-group full">
+            <label>Cover Image (JPG, PNG, WebP — max 50MB)</label>
+            <input type="file" name="cover_image" class="form-control" accept="image/*"/>
+            <img id="proj-img-preview" style="max-width:200px;margin-top:10px;border-radius:8px;display:none"/>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:8px"><i class="fas fa-save"></i> Save Project</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SKILL MODAL ══ -->
+<div class="modal-overlay" id="skill-modal">
+  <div class="admin-modal" style="max-width:440px">
+    <div class="modal-header"><h3>Skill</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="skill-id"/>
+      <form id="skill-form">
+        <div class="form-group"><label>Name *</label><input type="text" name="name" class="form-control" required/></div>
+        <div class="form-group"><label>Category</label><select name="category" class="form-control"><option value="programming">Programming</option><option value="web">Web Development</option><option value="ai">AI/ML</option><option value="business">Business</option><option value="design">Design</option></select></div>
+        <div class="form-group"><label>Level: <span id="level-display">80</span>%</label><div class="range-wrap"><input type="range" name="level" min="10" max="100" value="80" oninput="document.getElementById('level-display').textContent=this.value"/></div></div>
+        <div class="form-group"><label>FontAwesome Icon (optional)</label><input type="text" name="icon" class="form-control" placeholder="fab fa-python"/></div>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXPERIENCE MODAL ══ -->
+<div class="modal-overlay" id="exp-modal">
+  <div class="admin-modal">
+    <div class="modal-header"><h3>Experience</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="exp-id"/>
+      <form id="exp-form">
+        <div class="form-grid">
+          <div class="form-group"><label>Position *</label><input type="text" name="position" class="form-control" required/></div>
+          <div class="form-group"><label>Company *</label><input type="text" name="company" class="form-control" required/></div>
+          <div class="form-group"><label>Duration (display text)</label><input type="text" name="duration" class="form-control" placeholder="Jan 2022 – Present"/></div>
+          <div class="form-group"><label>Location</label><input type="text" name="location" class="form-control"/></div>
+          <div class="form-group"><label>Start Date</label><input type="text" name="start_date" class="form-control" placeholder="2022-01"/></div>
+          <div class="form-group"><label>End Date</label><input type="text" name="end_date" class="form-control" placeholder="2024-01 or Present"/></div>
+          <div class="form-group full"><label>Description</label><textarea name="description" class="form-control"></textarea></div>
+          <div class="form-group"><label>Sort Order</label><input type="number" name="sort_order" class="form-control" value="0"/></div>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CERT MODAL ══ -->
+<div class="modal-overlay" id="cert-modal">
+  <div class="admin-modal" style="max-width:480px">
+    <div class="modal-header"><h3>Certificate</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <form id="cert-form" enctype="multipart/form-data">
+        <div class="form-group"><label>Title *</label><input type="text" name="title" class="form-control" required/></div>
+        <div class="form-group"><label>Organization</label><input type="text" name="organization" class="form-control"/></div>
+        <div class="form-group"><label>Date</label><input type="text" name="date" class="form-control" placeholder="March 2024"/></div>
+        <div class="form-group"><label>Credential URL</label><input type="url" name="credential_url" class="form-control"/></div>
+        <div class="form-group"><label>Certificate Image</label><input type="file" name="image" class="form-control" accept="image/*"/></div>
+        <div class="form-group"><label>Certificate PDF</label><input type="file" name="pdf" class="form-control" accept=".pdf"/></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Certificate</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TESTIMONIAL MODAL ══ -->
+<div class="modal-overlay" id="testimonial-modal">
+  <div class="admin-modal" style="max-width:500px">
+    <div class="modal-header"><h3>Testimonial</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <form id="testimonial-form" enctype="multipart/form-data">
+        <div class="form-group"><label>Name *</label><input type="text" name="name" class="form-control" required/></div>
+        <div class="form-group"><label>Position</label><input type="text" name="position" class="form-control"/></div>
+        <div class="form-group"><label>Company</label><input type="text" name="company" class="form-control"/></div>
+        <div class="form-group"><label>Rating (1–5)</label><input type="number" name="rating" class="form-control" min="1" max="5" value="5"/></div>
+        <div class="form-group"><label>Message *</label><textarea name="message" class="form-control" required></textarea></div>
+        <div class="form-group"><label>Photo</label><input type="file" name="image" class="form-control" accept="image/*"/></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Testimonial</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COLLAB MODAL ══ -->
+<div class="modal-overlay" id="collab-modal">
+  <div class="admin-modal">
+    <div class="modal-header"><h3>Collaboration</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <form id="collab-form" enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="form-group"><label>Name *</label><input type="text" name="name" class="form-control" required/></div>
+          <div class="form-group"><label>Type</label><select name="type" class="form-control"><option value="company">Company</option><option value="individual">Individual</option></select></div>
+          <div class="form-group full"><label>Description</label><textarea name="description" class="form-control"></textarea></div>
+          <div class="form-group"><label>Website URL</label><input type="url" name="website" class="form-control"/></div>
+          <div class="form-group"><label>Social Links</label><input type="text" name="social_links" class="form-control" placeholder='{"linkedin":"https://..."}'/></div>
+          <div class="form-group"><label>Logo (JPG/PNG)</label><input type="file" name="logo" class="form-control" accept="image/*"/></div>
+          <div class="form-group"><label>Cover Image</label><input type="file" name="cover_image" class="form-control" accept="image/*"/></div>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ MESSAGE DETAIL MODAL ══ -->
+<div class="modal-overlay" id="msg-detail-modal">
+  <div class="admin-modal" style="max-width:560px">
+    <div class="modal-header"><h3><i class="fas fa-envelope" style="margin-right:8px;color:var(--secondary)"></i>Message Details</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div id="msg-detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ══ BLOG POST MODAL ══ -->
+<div class="modal-overlay" id="blog-modal" style="z-index:600">
+  <div class="admin-modal" style="max-width:900px">
+    <div class="modal-header"><h3 id="blog-modal-title">New Blog Post</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="blog-id"/>
+      <form id="blog-form" enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="form-group full"><label>Title *</label><input type="text" name="title" class="form-control" required placeholder="My Story About Building with Flask"/></div>
+          <div class="form-group"><label>Category</label>
+            <select name="category" class="form-control">
+              <option value="general">General</option>
+              <option value="tutorial">Tutorial</option>
+              <option value="story">Story</option>
+              <option value="tech">Tech</option>
+              <option value="life">Life</option>
+              <option value="project">Project</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Status</label>
+            <select name="status" class="form-control">
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Tags (comma-separated)</label><input type="text" name="tags" class="form-control" placeholder="flask, python, webdev"/></div>
+          <div class="form-group"><label>Cover Image</label><input type="file" name="cover_image" class="form-control" accept="image/*"/></div>
+          <div class="form-group full"><label>Excerpt (short summary shown on blog listing)</label><textarea name="excerpt" class="form-control" rows="2" placeholder="A brief description of this post..."></textarea></div>
+          <div class="form-group full">
+            <label>Content <small style="color:var(--text-muted);font-weight:400">(supports HTML — use &lt;h2&gt;, &lt;p&gt;, &lt;img&gt;, &lt;blockquote&gt;, &lt;code&gt;, &lt;pre&gt;, &lt;ul&gt;, &lt;a&gt;, &lt;strong&gt;, &lt;hr&gt;)</small></label>
+            <div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<h2>','</h2>')">H2</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<h3>','</h3>')">H3</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<p>','</p>')">P</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<strong>','</strong>')"><b>B</b></button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<em>','</em>')"><i>I</i></button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<blockquote>','</blockquote>')">Quote</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<code>','</code>')">Code</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<pre><code>','</code></pre>')">Block</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<ul>\n<li>','</li>\n</ul>')">List</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertTag('blog-content','<hr>','')">HR</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="insertImg()"><i class="fas fa-image"></i> Image</button>
+            </div>
+            <textarea id="blog-content" name="content" class="form-control" rows="18" style="font-family:monospace;font-size:.85rem;resize:vertical" placeholder="<h2>Introduction</h2>&#10;<p>Write your story here...</p>&#10;&#10;<h2>Main Content</h2>&#10;<p>More details...</p>"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Post</button>
+          <button type="button" class="btn btn-secondary" id="preview-blog-btn"><i class="fas fa-eye"></i> Preview</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SERVICE MODAL ══ -->
+<div class="modal-overlay" id="service-modal">
+  <div class="admin-modal" style="max-width:520px">
+    <div class="modal-header"><h3>Service</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="service-id"/>
+      <form id="service-form">
+        <div class="form-group"><label>Title *</label><input type="text" name="title" class="form-control" required placeholder="Web Development"/></div>
+        <div class="form-group"><label>Description</label><textarea name="description" class="form-control" rows="3" placeholder="Professional web development services..."></textarea></div>
+        <div class="form-group"><label>FontAwesome Icon</label><input type="text" name="icon" class="form-control" value="fas fa-code" placeholder="fas fa-code"/></div>
+        <div class="form-group"><label>Price (optional)</label><input type="text" name="price" class="form-control" placeholder="Starting $500"/></div>
+        <div class="form-group"><label>Features (pipe-separated)</label><input type="text" name="features" class="form-control" placeholder="Responsive design|SEO optimized|Fast loading"/></div>
+        <div class="form-group"><label>Sort Order</label><input type="number" name="sort_order" class="form-control" value="0"/></div>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACHIEVEMENT MODAL ══ -->
+<div class="modal-overlay" id="achievement-modal">
+  <div class="admin-modal" style="max-width:440px">
+    <div class="modal-header"><h3>Achievement / Stat</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="achievement-id"/>
+      <form id="achievement-form">
+        <div class="form-group"><label>Title *</label><input type="text" name="title" class="form-control" required placeholder="GitHub Stars"/></div>
+        <div class="form-group"><label>Value *</label><input type="text" name="value" class="form-control" required placeholder="500+"/></div>
+        <div class="form-group"><label>FontAwesome Icon</label><input type="text" name="icon" class="form-control" value="fas fa-star" placeholder="fas fa-star"/></div>
+        <div class="form-group"><label>Color</label><input type="color" name="color" class="form-control" value="#00d4ff" style="height:42px"/></div>
+        <div class="form-group"><label>Sort Order</label><input type="number" name="sort_order" class="form-control" value="0"/></div>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Loader text live preview
+document.querySelector('[name=loader_text]')?.addEventListener('input', function() {
+  const prev = document.getElementById('loader-preview');
+  if (prev) prev.textContent = this.value || 'HSK';
+});
+</script>
+<script>window.analyticsData = {{ analytics | tojson }};</script>
+<script src="/static/js/admin.js"></script>
+
+<style>
+.section-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.section-toggle-row:last-child{border-bottom:none}
+.status-badge{font-size:.72rem;padding:3px 10px;border-radius:99px;font-weight:600}
+.status-completed{background:rgba(16,185,129,.1);color:#10b981}
+.status-in-progress{background:rgba(245,158,11,.1);color:#f59e0b}
+.status-planned{background:rgba(107,114,128,.1);color:#6b7280}
+</style>
+</body>
+</html>
